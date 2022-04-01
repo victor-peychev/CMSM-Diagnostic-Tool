@@ -52,7 +52,7 @@ a, a:hover, a:focus {
 
 
 #sidebar {
-    min-width: 200px;
+    min-width: 120px;
     max-width: 200px;
     background: #3dc7d1;
     color: #fff;
@@ -129,3 +129,9 @@ a.article, a.article:hover {
     min-height: 100vh;
     transition: all 0.3s;
 }
+ul {
+    list-style-type: none;
+    margin-left: 0px;
+    padding-left: 0px;
+    border-left: 0px;
+  }

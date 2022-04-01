@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% for our_user in our_users %}
+    {{ our_user.id }}. 
+    {{ our_user.username }}
+    Password: {{our_user.password}}
+    <a href="{{ url_for('delete', id=our_user.id)}}">Delete</a> <br/>
+{% endfor %}
+
+
+{% endblock %}

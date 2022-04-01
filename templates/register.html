@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h1>Register</h1>
+    <form method="Post">
+        {{ form.hidden_tag() }}
+        {{ form.username.label( class="form-label") }}
+        {{ form.username( class="form-control") }}
+        {{ form.email.label( class="form-label") }}
+        {{ form.email( class="form-control") }}
+        {{ form.password.label( class="form-label") }}
+        {{ form.password( class="form-control") }}
+        {{ form.password2.label( class="form-label") }}
+        {{ form.password2( class="form-control") }}
+        {{ form.submit( class="btn btn-primary") }}
+
+    </form>
+
+{% for our_user in our_users %}
+    {{ our_user.id }}. 
+    {{ our_user.username }}
+    Password: {{our_user.password}}
+    <a href="{{ url_for('delete', id=our_user.id)}}">Delete</a> <br/>
+{% endfor %}
+
+
+{% endblock %}
