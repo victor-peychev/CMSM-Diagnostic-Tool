@@ -1,28 +1,30 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>Diagnostic Tool</h1>
+<br/>
+<br/>
 <form method="Post">
     {{ form.hidden_tag() }}
     {{ form.scratching.label( class="form-label") }}
     {{ form.scratching( class="form-control") }}
-    {{ form.scratching_site.label( class="form-label") }}
+    <br/>{{ form.scratching_site.label( class="form-label") }}
     {{ form.scratching_site( class="form-control") }}
-    {{ form.scratching_triggers.label( class="form-label") }}
+    <br/>{{ form.scratching_triggers.label( class="form-label") }}
     {{ form.scratching_triggers( class="form-control") }}
-    {{ form.vocalising_when_scratching.label( class="form-label") }}
+    <br/>{{ form.vocalising_when_scratching.label( class="form-label") }}
     {{ form.vocalising_when_scratching( class="form-control") }}
-    {{ form.nibbling_licking.label( class="form-label") }}
+    <br/>{{ form.nibbling_licking.label( class="form-label") }}
     {{ form.nibbling_licking( class="form-control") }}
-    {{ form.vocalisation_yelping_or_screaming.label( class="form-label") }}
+    <br/>{{ form.vocalisation_yelping_or_screaming.label( class="form-label") }}
     <div class="form-control">
     {{ form.vocalisation_yelping_or_screaming}}
     {{ form.vocalisation_yelping_or_screaming_text_box(size=70, maxlength=70) }}
     </div>
-    {{ form.exercise.label( class="form-label") }}
+    <br/>{{ form.exercise.label( class="form-label") }}
     {{ form.exercise( class="form-control") }}
-    {{ form.play.label( class="form-label") }}
+    <br/>{{ form.play.label( class="form-label") }}
     {{ form.play( class="form-control") }}
-    {{ form.stairs_jumping.label( class="form-label") }}
+    <br/>{{ form.stairs_jumping.label( class="form-label") }}
     <div class="form-control">
     {% for subfield in form.stairs_jumping %}
     <tr>
@@ -30,14 +32,14 @@
     </tr>
     {% endfor %}
     </div>
-    {{ form.interactions.label( class="form-label") }}
+    <br/> {{ form.interactions.label( class="form-label") }}
     <div class="form-control">
         {{ form.interactions}}
         {{ form.interactions_text_box(size=70, maxlength=70)}}
     </div>
-    {{ form.sleep.label( class="form-label") }}
+    <br/> {{ form.sleep.label( class="form-label") }}
     {{ form.sleep( class="form-control") }}
-    {{ form.other_signs.label( class="form-label") }}
+    <br/> {{ form.other_signs.label( class="form-label") }}
     {{ form.other_signs( class="form-control") }}
     
     <br/>

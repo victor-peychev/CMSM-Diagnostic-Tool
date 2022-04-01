@@ -164,30 +164,31 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = widgets.CheckboxInput()
 
 class StairsJumping(Form):
-    upstairs = RadioField(choices=['No hesitation / willing to go up stairs', 'Hesitation / Unwilling to go upstairs']) 
-    downstairs = RadioField(choices=['No hesitation / willing to go downstairs', 'Hesitation / Unwilling to go downstairs'])
-    jumping = RadioField(choices=['No hesitation / willing to jump small heights', 'Hesitation / unwilling to jump small heights', 'Ability to jump small heights and or do stairs reduced to previously']) 
+    upstairs = RadioField(choices=['No hesitation / willing to go upstairs', 'Hesitation / Unwilling to go upstairs'], default = 'No hesitation / willing to go upstairs', validators=[DataRequired()]) 
+    downstairs = RadioField(choices=['No hesitation / willing to go downstairs', 'Hesitation / Unwilling to go downstairs'], default = 'No hesitation / willing to go downstairs', validators=[DataRequired()])
+    jumping = RadioField(choices=['No hesitation / willing to jump small heights', 'Hesitation / unwilling to jump small heights', 'Ability to jump small heights and or do stairs reduced to previously'], default = 'No hesitation / willing to jump small heights', validators=[DataRequired()]) 
 
 class Form(FlaskForm):
-    scratching = RadioField("Sctratching", choices=['No', 'Yes Occasional', 'Yes Frequent'])
+    scratching = RadioField("Sctratching", choices=['No', 'Yes Occasional', 'Yes Frequent'], default = 'No', validators=[DataRequired()])
     scratching_site = MultiCheckboxField("Scratching site (tick all that apply)", choices=['Face/ mouth', 'Ear/ back of head', 'Towards neck / shoulder with left back foot', 'Towards neck / shoulder with right back foot', 'Chest', 'Tail head', 'Belly'])
-    scratching_triggers = RadioField("Scratching triggers", choices=['Rubbing of one area of skin (neck, chest, shoulder)', 'Rubbing of one area of skin (belly)', 'Rubbing of one area of skin (tailhead)', 'When excited / anxious', 'When walking on leash', 'During night', 'No trigger'])
-    vocalising_when_scratching = RadioField("Vocalising when scrathing", choices=['No', 'Yes - Shoulder / neck  ', 'Yes - Back of head / ear'])
+    scratching_triggers = RadioField("Scratching triggers", choices=['Rubbing of one area of skin (neck, chest, shoulder)', 'Rubbing of one area of skin (belly)', 'Rubbing of one area of skin (tailhead)', 'When excited / anxious', 'When walking on leash', 'During night', 'No trigger'], default='No trigger', validators=[DataRequired()])
+    vocalising_when_scratching = RadioField("Vocalising when scrathing", choices=['No', 'Yes - Shoulder / neck  ', 'Yes - Back of head / ear'], default='No', validators=[DataRequired()])
     nibbling_licking = RadioField("Nibbling / licking", choices=['Forefeet', 'Hindfeet', 'Tailhead', 'Belly', 'Flank'])
-    vocalisation_yelping_or_screaming = MultiCheckboxField("Vocalisation (yelping or screaming)", choices=['During sleep or when changing position when recumbent  ', 'On rising or when jumping', 'When being picked up under sternum (by “armpits”)', 'During defecation', 'When emotionally aroused (for example seeing a squirrel)', 'When anxious', 'Other - please describe'])
+    vocalisation_yelping_or_screaming = MultiCheckboxField("Vocalisation (yelping or screaming)", choices=['During sleep or when changing position when recumbent  ', 'On rising or when jumping', 'When being picked up under sternum (by “armpits”)', 'During defecation', 'When emotionally aroused (for example seeing a squirrel)', 'When anxious', 'Other - please describe'], validators=[DataRequired()])
     vocalisation_yelping_or_screaming_text_box = StringField()
-    exercise = RadioField("Exercise", choices=['Normal - pet is keen to exercise and shows no sign of fatigue during a 60-minute walk', 'Reduced - pet is initially keen to exercise but will fatigue within 30-60 minutes', 'Markedly reduced - pet refuses to exercise or will fatigue within 30 minutes'])
-    play = RadioField("Play", choices=['Engages in play on a daily basis', 'Engages in play 3-6 times a week', 'Engages in play 1-3 times a week', 'Rarely or does not engage in play'])
+    exercise = RadioField("Exercise", choices=['Normal - pet is keen to exercise and shows no sign of fatigue during a 60-minute walk', 'Reduced - pet is initially keen to exercise but will fatigue within 30-60 minutes', 'Markedly reduced - pet refuses to exercise or will fatigue within 30 minutes'], default='Normal - pet is keen to exercise and shows no sign of fatigue during a 60-minute walk', validators=[DataRequired()])
+    play = RadioField("Play", choices=['Engages in play on a daily basis', 'Engages in play 3-6 times a week', 'Engages in play 1-3 times a week', 'Rarely or does not engage in play'], default = 'Engages in play on a daily basis', validators=[DataRequired()])
     stairs_jumping = FormField(StairsJumping)
     interactions = MultiCheckboxField("Interactions", choices=['No change', 'No longer jumping up to greet you on entry into the house', 'Increase in anxious behaviour (lip licking, yawning, unable to settle, clinging, seeking reassurance)', 'More withdraw', 'More timid with other dogs or humans', 'Increased aggression to other dogs', 'Growling when picked up', 'Increased aggression to humans', 'Other behaviour change (open answer)' ])
     interactions_text_box = StringField()
-    sleep = RadioField("Sleep", choices=['Sleeps through the night / has undisrupted sleep', 'Does not sleep though the night / has disturbed sleep'])
-    other_signs = MultiCheckboxField("Other signs", choices=['Touch / grooming  aversion ears / head and/or neck', 'Touch / grooming aversion 1-2  limb and /paw ', 'touch / grooming aversion sternum or flank', 'Abnormal awake Head / neck posture', 'Sleeping elevated or unusual head posture', 'Squinting / Avoiding light', 'Licking limb /   paw', 'Pain face', '1 or more pain behaviors / signs' ]) 
+    sleep = RadioField("Sleep", choices=['Sleeps through the night / has undisrupted sleep', 'Does not sleep though the night / has disturbed sleep'], validators=[DataRequired()])
+    other_signs = MultiCheckboxField("Other signs", choices=['Touch / grooming  aversion ears / head and/or neck', 'Touch / grooming aversion 1-2  limb and /paw ', 'touch / grooming aversion sternum or flank', 'Abnormal awake Head / neck posture', 'Sleeping elevated or unusual head posture', 'Squinting / Avoiding light', 'Licking limb /   paw', 'Pain grimace']) 
     # neurological_abnormalities = MultiCheckboxField("Neurological Abnormalities", choices=['Weakness', 'Muscle atrophy', 'Postural responses decreased', 'Ataxia', 'Hypermetria', 'Scoliosis / cervicothoracic torticollis', 'Any neurological abnormality (Not listed above)'])
     submit = SubmitField("Submit")
 
 
 @app.route('/form', methods=['GET', 'POST'])
+@login_required
 def form():
     form = Form()
     return render_template("form.html",
