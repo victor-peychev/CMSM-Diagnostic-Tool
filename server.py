@@ -1,13 +1,15 @@
 from wsgiref.validate import validator
 from flask import Flask, flash, render_template, request, url_for, redirect
 from flask_wtf import FlaskForm, Form
-from wtforms import widgets, PasswordField, BooleanField, ValidationError ,SubmitField, SelectField, SelectMultipleField, RadioField, FormField, StringField
+from wtforms import widgets, DateField, PasswordField, BooleanField, ValidationError ,SubmitField, SelectField, SelectMultipleField, RadioField, FormField, StringField
 from wtforms.validators import DataRequired, EqualTo, Length
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
+#Flask instance
 app = Flask(__name__)
 # Add Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1421@localhost/users'
@@ -15,15 +17,21 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1421@localhost/use
 app.config['SECRET_KEY'] = "secretkey"
 #Initialize The Database
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
-# Create Model
+# Create Users Model
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), nullable=False, unique=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     password = db.Column(db.String(128), nullable=False)
-    #is_a_vet = db.Column(db.Boolean)
+    dogs_name = db.Column(db.String(128), nullable=False)
+    dogs_breed = db.Column(db.String(128), nullable=False)
+    dogs_dob = db.Column(db.Date, nullable=False)
+    dogs_sex = db.Column(db.String(128), nullable=False)
+    dogs_neutered = db.Column(db.String(128), nullable=False)
+    is_a_vet = db.Column(db.String(64), default='No')
 
     @property
     def password_hash(self):
@@ -41,6 +49,36 @@ class Users(db.Model, UserMixin):
     def __repr__(self):
         return '<Username %r>' % self.username
 
+"""
+# Create Forum Submissions Model
+class Submissions(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    secondary_id = db.Column(db.Integer)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    dogs_name = db.Column(db.String(128), nullable=False)
+    dogs_breed = db.Column(db.String(128), nullable=False)
+    dogs_name = db.Column(db.String(128), nullable=False)
+    dogs_dob = db.Column(db.Date, nullable=False)
+    dogs_sex = db.Column(db.String(128), nullable=False)
+    dogs_neutered = db.Column(db.String(128), nullable=False)
+    scratching = db.Column(db.String(128), nullable=False)
+    scratching_site = db.Column(db.String(128), nullable=False)
+    scratching_triggers = db.Column(db.String(128), nullable=False)
+    vocalising_when_scratching = db.Column(db.String(128), nullable=False)
+    nibbling_licking = db.Column(db.String(128), nullable=False)
+    vocalisation_yelping_or_screaming = db.Column(db.String(128), nullable=False)
+    vocalisation_yelping_or_screaming_text_box = db.Column(db.String(128), nullable=False)
+    exercise = db.Column(db.String(128), nullable=False)
+    play = db.Column(db.String(128), nullable=False)
+    stairs_jumping = db.Column(db.String(128), nullable=False)
+    interactions = db.Column(db.String(128), nullable=False)
+    interactions_text_box = db.Column(db.String(128), nullable=False)
+    sleep = db.Column(db.String(128), nullable=False)
+    other_signs = db.Column(db.String(128), nullable=False)
+
+"""
+
+
 # Create Register Page
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -51,7 +89,7 @@ def register():
         if user is None:
             # Hash the password
             hashed_password = generate_password_hash(form.password.data, "sha256")
-            user = Users(username = form.username.data, email = form.email.data, password = hashed_password)
+            user = Users(username = form.username.data, email = form.email.data, password = hashed_password, dogs_name = form.dogs_name.data, dogs_breed = form.dogs_breed.data, dogs_dob = form.dogs_dob.data, dogs_sex = form.dogs_sex.data, dogs_neutered = form.dogs_neutered.data)
             db.session.add(user)
             db.session.commit()
             flash("User Registered")
@@ -61,6 +99,12 @@ def register():
         form.username.data = ''
         form.email.data = ''
         form.password.data = ''
+        form.dogs_name.data = ''
+        form.dogs_breed.data = ''
+        form.dogs_dob.data = ''
+        form.dogs_sex.data = ''
+        form.dogs_neutered.data = ''
+
     our_users = Users.query.order_by(Users.date_added)
     return render_template("register.html", form=form, username=username, our_users=our_users)
 
@@ -141,6 +185,11 @@ class RegisterForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired(), EqualTo('password2', message='Passwords mush match')])
     password2 = PasswordField("Confirm Password", validators=[DataRequired()])
+    dogs_name = StringField("Dog's Name", validators=[DataRequired()])
+    dogs_breed = StringField("Dogs' Breed", validators=[DataRequired()])
+    dogs_dob = DateField("Dog's Date of Birth", validators=[DataRequired()])
+    dogs_sex = RadioField("Dog's sex", choices=['Male', 'Female'], validators=[DataRequired()])
+    dogs_neutered = RadioField("Is the dog neutered", choices=['Yes', 'No'], validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 # Flask Login
@@ -153,7 +202,9 @@ def load_user(user_id):
     return Users.query.get(int(user_id))
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
+    # dog's name, dog's breed, dob, sex(neutered)
+    # after diagnosis smn sms cmp
+    username = StringField("Username", validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Sumbit')
 
@@ -168,12 +219,12 @@ class StairsJumping(Form):
     downstairs = RadioField(choices=['No hesitation / willing to go downstairs', 'Hesitation / Unwilling to go downstairs'], default = 'No hesitation / willing to go downstairs', validators=[DataRequired()])
     jumping = RadioField(choices=['No hesitation / willing to jump small heights', 'Hesitation / unwilling to jump small heights', 'Ability to jump small heights and or do stairs reduced to previously'], default = 'No hesitation / willing to jump small heights', validators=[DataRequired()]) 
 
-class Form(FlaskForm):
+class ToolForm(FlaskForm): # add date
     scratching = RadioField("Sctratching", choices=['No', 'Yes Occasional', 'Yes Frequent'], default = 'No', validators=[DataRequired()])
     scratching_site = MultiCheckboxField("Scratching site (tick all that apply)", choices=['Face/ mouth', 'Ear/ back of head', 'Towards neck / shoulder with left back foot', 'Towards neck / shoulder with right back foot', 'Chest', 'Tail head', 'Belly'])
-    scratching_triggers = RadioField("Scratching triggers", choices=['Rubbing of one area of skin (neck, chest, shoulder)', 'Rubbing of one area of skin (belly)', 'Rubbing of one area of skin (tailhead)', 'When excited / anxious', 'When walking on leash', 'During night', 'No trigger'], default='No trigger', validators=[DataRequired()])
-    vocalising_when_scratching = RadioField("Vocalising when scrathing", choices=['No', 'Yes - Shoulder / neck  ', 'Yes - Back of head / ear'], default='No', validators=[DataRequired()])
-    nibbling_licking = RadioField("Nibbling / licking", choices=['Forefeet', 'Hindfeet', 'Tailhead', 'Belly', 'Flank'])
+    scratching_triggers = MultiCheckboxField("Scratching triggers", choices=['Rubbing of one area of skin (neck, chest, shoulder)', 'Rubbing of one area of skin (belly)', 'Rubbing of one area of skin (tailhead)', 'When excited / anxious', 'When walking on leash', 'During night', 'No trigger'])
+    vocalising_when_scratching = MultiCheckboxField("Vocalising when scrathing", choices=['Yes - Shoulder / neck  ', 'Yes - Back of head / ear'])
+    nibbling_licking = RadioField("Nibbling / licking", choices=['Fore feet', 'Hind feet', 'Tail head', 'Belly', 'Flank'])
     vocalisation_yelping_or_screaming = MultiCheckboxField("Vocalisation (yelping or screaming)", choices=['During sleep or when changing position when recumbent  ', 'On rising or when jumping', 'When being picked up under sternum (by “armpits”)', 'During defecation', 'When emotionally aroused (for example seeing a squirrel)', 'When anxious', 'Other - please describe'], validators=[DataRequired()])
     vocalisation_yelping_or_screaming_text_box = StringField()
     exercise = RadioField("Exercise", choices=['Normal - pet is keen to exercise and shows no sign of fatigue during a 60-minute walk', 'Reduced - pet is initially keen to exercise but will fatigue within 30-60 minutes', 'Markedly reduced - pet refuses to exercise or will fatigue within 30 minutes'], default='Normal - pet is keen to exercise and shows no sign of fatigue during a 60-minute walk', validators=[DataRequired()])
@@ -190,7 +241,10 @@ class Form(FlaskForm):
 @app.route('/form', methods=['GET', 'POST'])
 @login_required
 def form():
-    form = Form()
+    form = ToolForm()
+    #submission = Submissions(scratching = form.scratching.data, scratching_site = form.scratching_site.data, scratching_triggers = form.scratching_triggers.data, vocalising_when_scratching = form.vocalising_when_scratching.data, nibbling_licking = form.nibbling_licking.data, vocalisation_yelping_or_screaming = form.vocalisation_yelping_or_screaming.data, vocalisation_yelping_or_screaming_text_box = form.vocalisation_yelping_or_screaming_text_box.data, exercise = form.exercise.data, play = form.play.data, stairs_jumping = form.stairs_jumping.data, interactions = form.interactions.data, interactions_text_box = form.interactions_text_box.data, sleep = form.sleep.data, other_signs = form.other_signs.data)
+    #db.session.add(submission)
+    #db.session.commit()
     return render_template("form.html",
     form = form )
 

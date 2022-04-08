@@ -12,6 +12,16 @@
         {{ form.password( class="form-control") }}
         {{ form.password2.label( class="form-label") }}
         {{ form.password2( class="form-control") }}
+        {{ form.dogs_name.label( class="form-label") }}
+        {{ form.dogs_name( class="form-control") }}
+        {{ form.dogs_breed.label( class="form-label") }}
+        {{ form.dogs_breed( class="form-control") }}
+        {{ form.dogs_dob.label( class="form-label") }}
+        {{ form.dogs_dob( class="form-control") }}
+        {{ form.dogs_sex.label( class="form-label") }}
+        {{ form.dogs_sex( class="form-control") }}
+        {{ form.dogs_neutered.label( class="form-label") }}
+        {{ form.dogs_neutered( class="form-control") }}
         {{ form.submit( class="btn btn-primary") }}
 
     </form>
@@ -19,9 +29,9 @@
 {% for our_user in our_users %}
     {{ our_user.id }}. 
     {{ our_user.username }}
+    {{ our_user.is_a_vet }}
     Password: {{our_user.password}}
     <a href="{{ url_for('delete', id=our_user.id)}}">Delete</a> <br/>
 {% endfor %}
-
 
 {% endblock %}
