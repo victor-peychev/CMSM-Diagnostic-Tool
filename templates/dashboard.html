@@ -1,11 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
 
-{% for our_user in our_users %}
-    {{ our_user.id }}. 
-    {{ our_user.username }}
-    Password: {{our_user.password}}
-    <a href="{{ url_for('delete', id=our_user.id)}}">Delete</a> <br/>
+{% for submission in submissions %}
+    <div class="container">
+        <div class="row">
+                <div class=".col-sm-6">
+                    {{ submission.id }}
+                    
+                </div>
+                <div class=".col-sm-6">
+                    {{ submission.dogs_name }}
+                </div>
+        </div>
+    </div>
+    <hr>
+    
 {% endfor %}
 
 

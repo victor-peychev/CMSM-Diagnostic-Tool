@@ -4,7 +4,7 @@
         <!-- Sidebar Holder -->
         <nav id="sidebar">
             <div class="sidebar-header">
-                <h3><a href="{{ url_for('index')}}">Project Name</a></h3>
+                <h3><a href="{{ url_for('index')}}">Diagnostic tool for Chiari Pain and Syringomyelia</a></h3>
             </div>
 
             <ul class="list-unstyled components">
@@ -19,6 +19,11 @@
                         </li>
                     </ul>
                 </li>
+                {% if current_user.is_authenticated: %}
+                <li>
+                    <a href="{{ url_for('dashboard') }}">My Dashboard</a>
+                </li>
+                {% endif %}
                 <li>
                     <a href="#aboutSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">About</a>
                     <ul class="collapse list-unstyled" id="aboutSubmenu">
