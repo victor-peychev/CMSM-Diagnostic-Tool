@@ -1,6 +1,5 @@
 import json
 from email.policy import default
-from msilib.schema import CheckBox
 from wsgiref.validate import validator
 from flask import Flask, flash, render_template, request, url_for, redirect
 from flask_wtf import FlaskForm, Form
