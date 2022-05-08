@@ -13,10 +13,13 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
+
+
 #Flask instance
 app = Flask(__name__)
 # Add Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1421@localhost/users'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1421@localhost/users'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://uygmvrklrcinsb:cca4150d97ffe08554d255c87cb72c8a715273204702140ec41f09f38210afa7@ec2-3-217-113-25.compute-1.amazonaws.com:5432/d4h9142hjjsjia'
 # Secret Key
 app.config['SECRET_KEY'] = "secretkey"
 #Initialize The Database

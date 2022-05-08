@@ -16,4 +16,3 @@ flask db migrate -m''
 flask db upgrade
 
 
-
