@@ -12,13 +12,23 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
-
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import sklearn
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.metrics import accuracy_score
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
 
 #Flask instance
 app = Flask(__name__)
 # Add Database
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1421@localhost/users'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://uygmvrklrcinsb:cca4150d97ffe08554d255c87cb72c8a715273204702140ec41f09f38210afa7@ec2-3-217-113-25.compute-1.amazonaws.com:5432/d4h9142hjjsjia'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1421@localhost/users'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://uygmvrklrcinsb:cca4150d97ffe08554d255c87cb72c8a715273204702140ec41f09f38210afa7@ec2-3-217-113-25.compute-1.amazonaws.com:5432/d4h9142hjjsjia'
 # Secret Key
 app.config['SECRET_KEY'] = "secretkey"
 #Initialize The Database
@@ -70,55 +80,55 @@ class Submissions(db.Model):
     dogs_dob = db.Column(db.Date, nullable=False)
     dogs_sex = db.Column(db.String(128), nullable=False)
     dogs_neutered = db.Column(db.String(128), nullable=False)
-    scratching = db.Column(db.String(256), nullable=False)
-    scratching_site_face_mouth = db.Column(db.String(256))
-    scratching_site_ear_back_of_ear = db.Column(db.String(256))
-    scratching_site_towards_neck_shoulder_with_left_back_foot = db.Column(db.String(256))
-    scratching_site_towards_neck_shoulder_with_tight_back_foot = db.Column(db.String(256))
-    scratching_site_chest = db.Column(db.String(256))
-    scratching_site_tail_head = db.Column(db.String(256))
-    scratching_site_belly = db.Column(db.String(256))
-    scratching_triggers_rubbing_neck_chest_shoulder = db.Column(db.String(256))
-    scratching_triggers_rubbing_belly = db.Column(db.String(256))
-    scratching_triggers_rubbing_tailhead = db.Column(db.String(256))
-    scratching_triggers_when_excited_anxious = db.Column(db.String(256))
-    scratching_triggers_during_night = db.Column(db.String(256))
-    vocalising_when_scratching_shoulder_neck = db.Column(db.String(256))
-    vocalising_when_scratching_back_of_head_ear = db.Column(db.String(256))
-    nibbling_licking_fore_feet = db.Column(db.String(256))
-    nibbling_licking_hind_feet = db.Column(db.String(256))
-    nibbling_licking_tail_head = db.Column(db.String(256))
-    nibbling_licking_belly = db.Column(db.String(256))
-    nibbling_licking_flank = db.Column(db.String(256))
-    vocalisation_during_sleep = db.Column(db.String(256))
-    vocalisation_on_rising_or_when_jumping = db.Column(db.String(256))
-    vocalisation_when_being_picked_up = db.Column(db.String(256))
-    vocalisation_during_defecation = db.Column(db.String(256))
-    vocalisation_when_emotionally_aroused = db.Column(db.String(256))
-    vocalisation_yelping_or_screaming_when_anxious = db.Column(db.String(256))
+    scratching = db.Column(db.Integer(), nullable=False)
+    scratching_site_face_mouth = db.Column(db.Integer)
+    scratching_site_ear_back_of_ear = db.Column(db.Integer)
+    scratching_site_towards_neck_shoulder_with_left_back_foot = db.Column(db.Integer)
+    scratching_site_towards_neck_shoulder_with_tight_back_foot = db.Column(db.Integer)
+    scratching_site_chest = db.Column(db.Integer)
+    scratching_site_tail_head = db.Column(db.Integer)
+    scratching_site_belly = db.Column(db.Integer)
+    scratching_triggers_rubbing_neck_chest_shoulder = db.Column(db.Integer)
+    scratching_triggers_rubbing_belly = db.Column(db.Integer)
+    scratching_triggers_rubbing_tailhead = db.Column(db.Integer)
+    scratching_triggers_when_excited_anxious = db.Column(db.Integer)
+    scratching_triggers_when_walking_on_a_leash = db.Column(db.Integer)
+    scratching_triggers_during_night = db.Column(db.Integer)
+    vocalising_when_scratching_shoulder_neck = db.Column(db.Integer)
+    vocalising_when_scratching_back_of_head_ear = db.Column(db.Integer)
+    nibbling_licking_fore_feet = db.Column(db.Integer)
+    nibbling_licking_hind_feet = db.Column(db.Integer)
+    nibbling_licking_tail_head = db.Column(db.Integer)
+    nibbling_licking_belly = db.Column(db.Integer)
+    nibbling_licking_flank = db.Column(db.Integer)
+    vocalisation_during_sleep = db.Column(db.Integer)
+    vocalisation_on_rising_or_when_jumping = db.Column(db.Integer)
+    vocalisation_when_being_picked_up = db.Column(db.Integer)
+    vocalisation_during_defecation = db.Column(db.Integer)
+    vocalisation_when_emotionally_aroused = db.Column(db.Integer)
+    vocalisation_yelping_or_screaming_when_anxious = db.Column(db.Integer)
     vocalisation_yelping_or_screaming_text_box = db.Column(db.String(512))
-    exercise = db.Column(db.String(256), nullable=False)
-    play = db.Column(db.String(256), nullable=False)
-    upstairs = db.Column(db.String(256), nullable=False)
-    downstairs = db.Column(db.String(256), nullable=False)
-    jumping = db.Column(db.String(256), nullable=False)
-    interactions_no_longer_jumping_up_to_greet = db.Column(db.String(256))
-    interactions_increase_in_anxious_behaviour = db.Column(db.String(256))
-    interactions_more_withdraw = db.Column(db.String(256))
-    interactions_more_timid_with_other_dogs_or_humans = db.Column(db.String(256))
-    interactions_increased_agression_to_other_dogs = db.Column(db.String(256))
-    interactions_growling_when_picked_up = db.Column(db.String(256))
-    interactions_increased_agression_to_humans = db.Column(db.String(256))
+    exercise = db.Column(db.Integer, nullable=False)
+    play = db.Column(db.Integer, nullable=False)
+    upstairs = db.Column(db.Integer, nullable=False)
+    downstairs = db.Column(db.Integer, nullable=False)
+    jumping = db.Column(db.Integer, nullable=False)
+    interactions_no_longer_jumping_up_to_greet = db.Column(db.Integer)
+    interactions_increase_in_anxious_behaviour = db.Column(db.Integer)
+    interactions_more_withdraw = db.Column(db.Integer)
+    interactions_more_timid_with_other_dogs_or_humans = db.Column(db.Integer)
+    interactions_increased_agression_to_other_dogs = db.Column(db.Integer)
+    interactions_growling_when_picked_up = db.Column(db.Integer)
+    interactions_increased_agression_to_humans = db.Column(db.Integer)
     interactions_text_box = db.Column(db.String(512))
-    sleep = db.Column(db.String(256), nullable=False)
-    other_signs_tocuh_grooming_aversion_ears_head_and_or_neck = db.Column(db.String(256))
-    other_signs_tocuh_grooming_aversion_1_2_limb_and_paw = db.Column(db.String(256))
-    other_signs_tocuh_grooming_aversion_sternum_or_flank = db.Column(db.String(256))
-    other_signs_abnormal_awake_head_neck_posture = db.Column(db.String(256))
-    other_signs_sleeping_elevated_or_unusual_head_posture = db.Column(db.String(256))
-    other_signs_squinting_avoiding_light = db.Column(db.String(256))
-    other_signs_licking_limb_paw = db.Column(db.String(256))
-    other_signs_pain_grimace = db.Column(db.String(256))
+    sleep = db.Column(db.Integer, nullable=False)
+    other_signs_tocuh_grooming_aversion_ears_head_and_or_neck = db.Column(db.Integer)
+    other_signs_tocuh_grooming_aversion_1_2_limb_and_paw = db.Column(db.Integer)
+    other_signs_tocuh_grooming_aversion_sternum_or_flank = db.Column(db.Integer)
+    other_signs_abnormal_awake_head_neck_posture = db.Column(db.Integer)
+    other_signs_sleeping_elevated_or_unusual_head_posture = db.Column(db.Integer)
+    other_signs_squinting_avoiding_light = db.Column(db.Integer)
+    other_signs_pain_grimace = db.Column(db.Integer)
 
 
 
@@ -185,6 +195,12 @@ def dashboard():
     submissions = Submissions.query.order_by(Submissions.date_added)
     return render_template('dashboard.html', submissions = submissions)
 
+@app.route('/result', methods=['GET', 'POST'])
+@login_required
+def result():
+    prediction = request.args.get('prediction', None)
+    return render_template('result.html', result = prediction)
+
 
 @app.route('/delete/<int:id>')
 def delete(id):
@@ -250,7 +266,7 @@ class LoginForm(FlaskForm):
     # after diagnosis smn sms cmp
     username = StringField("Username", validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Sumbit')
+    submit = SubmitField('Submit')
 
 # Multicheckbox class
 
@@ -261,7 +277,7 @@ class MultiCheckboxField(SelectMultipleField):
 # Form class
 
 class ToolForm(FlaskForm): # add date
-    scratching = RadioField("Sctratching", choices=['No', 'Yes Occasional', 'Yes Frequent'], default = 'No', validators=[DataRequired()])
+    scratching = RadioField("Sctratching", choices=[('0','No'), ('1','Yes Occasional'), ('2','Yes Frequent')], default = '0', validators=[DataRequired()])
     scratching_site = MultiCheckboxField("Scratching site (tick all that apply)", choices=[('1','Face/ mouth'), ('2','Ear/ back of head'), ('3','Towards neck / shoulder with left back foot'), ('4','Towards neck / shoulder with right back foot'), ('5','Chest'), ('6','Tail head'), ('7','Belly')])
     scratching_triggers = MultiCheckboxField("Scratching triggers", choices=[('1','Rubbing of one area of skin (neck, chest, shoulder)'), ('2','Rubbing of one area of skin (belly)'), ('3','Rubbing of one area of skin (tailhead)'), ('4','When excited / anxious'), ('5','When walking on leash'), ('6','During night')])
     vocalising_when_scratching = MultiCheckboxField("Vocalising when scrathing", choices=[('1','Yes - Shoulder / neck  '), ('2','Yes - Back of head / ear')])
@@ -295,11 +311,75 @@ def form():
         interactions = form.interactions.data
         other_signs = form.other_signs.data
 
-        submission = Submissions(foreign_id = current_user.id, dogs_name = current_user.dogs_name, dogs_breed = current_user.dogs_breed, dogs_dob = current_user.dogs_dob, dogs_sex = current_user.dogs_sex, dogs_neutered = current_user.dogs_neutered, scratching = form.scratching.data, scratching_site_face_mouth = process_array(scratching_site,'1'), scratching_site_ear_back_of_ear = process_array(scratching_site,'2'), scratching_site_towards_neck_shoulder_with_left_back_foot = process_array(scratching_site,'3'), scratching_site_towards_neck_shoulder_with_tight_back_foot = process_array(scratching_site,'4'), scratching_site_chest = process_array(scratching_site,'5'), scratching_site_tail_head = process_array(scratching_site,'6'), scratching_site_belly = process_array(scratching_site,'7'), scratching_triggers_rubbing_neck_chest_shoulder = process_array(scratching_triggers,'1'), scratching_triggers_rubbing_belly = process_array(scratching_triggers,'2'), scratching_triggers_rubbing_tailhead = process_array(scratching_triggers,'3'), scratching_triggers_when_excited_anxious = process_array(scratching_triggers,'4'), scratching_triggers_during_night = process_array(scratching_triggers,'5'),  vocalising_when_scratching_shoulder_neck = process_array(vocalising_when_scratching,'1'), vocalising_when_scratching_back_of_head_ear = process_array(vocalising_when_scratching,'2'), nibbling_licking_fore_feet = process_array(nibbling_licking,'1'), nibbling_licking_hind_feet = process_array(nibbling_licking,'2'), nibbling_licking_tail_head = process_array(nibbling_licking,'3'), nibbling_licking_belly = process_array(nibbling_licking,'4'), nibbling_licking_flank = process_array(nibbling_licking,'5'), vocalisation_during_sleep = process_array(vocalisation_yelping_or_screaming,'1'), vocalisation_on_rising_or_when_jumping = process_array(vocalisation_yelping_or_screaming,'2'), vocalisation_when_being_picked_up = process_array(vocalisation_yelping_or_screaming,'3'), vocalisation_during_defecation = process_array(vocalisation_yelping_or_screaming,'4'), vocalisation_when_emotionally_aroused = process_array(vocalisation_yelping_or_screaming,'5'), vocalisation_yelping_or_screaming_when_anxious = process_array(vocalisation_yelping_or_screaming,'6'), vocalisation_yelping_or_screaming_text_box = form.vocalisation_yelping_or_screaming_text_box.data, exercise = form.exercise.data, play = form.play.data, upstairs = form.upstairs.data, downstairs = form.downstairs.data, jumping = form.jumping.data, interactions_no_longer_jumping_up_to_greet = process_array(interactions,'1'), interactions_increase_in_anxious_behaviour = process_array(interactions,'2'), interactions_more_withdraw = process_array(interactions,'3'), interactions_more_timid_with_other_dogs_or_humans = process_array(interactions,'4'), interactions_increased_agression_to_other_dogs = process_array(interactions,'5'), interactions_growling_when_picked_up = process_array(interactions,'6'), interactions_increased_agression_to_humans = process_array(interactions,'7'), interactions_text_box = form.interactions_text_box.data, sleep = form.sleep.data, other_signs_tocuh_grooming_aversion_ears_head_and_or_neck = process_array(other_signs,'1'), other_signs_tocuh_grooming_aversion_1_2_limb_and_paw = process_array(other_signs,'2'), other_signs_tocuh_grooming_aversion_sternum_or_flank = process_array(other_signs,'3'), other_signs_abnormal_awake_head_neck_posture = process_array(other_signs,'4'), other_signs_sleeping_elevated_or_unusual_head_posture = process_array(other_signs,'5'), other_signs_squinting_avoiding_light = process_array(other_signs,'6'), other_signs_licking_limb_paw = process_array(other_signs,'7'), other_signs_pain_grimace = process_array(other_signs,'8'))
+        submission = Submissions(foreign_id = current_user.id, dogs_name = current_user.dogs_name, dogs_breed = current_user.dogs_breed, dogs_dob = current_user.dogs_dob, dogs_sex = current_user.dogs_sex, dogs_neutered = current_user.dogs_neutered, scratching = form.scratching.data, scratching_site_face_mouth = process_array(scratching_site,'1'), scratching_site_ear_back_of_ear = process_array(scratching_site,'2'), scratching_site_towards_neck_shoulder_with_left_back_foot = process_array(scratching_site,'3'), scratching_site_towards_neck_shoulder_with_tight_back_foot = process_array(scratching_site,'4'), scratching_site_chest = process_array(scratching_site,'5'), scratching_site_tail_head = process_array(scratching_site,'6'), scratching_site_belly = process_array(scratching_site,'7'), scratching_triggers_rubbing_neck_chest_shoulder = process_array(scratching_triggers,'1'), scratching_triggers_rubbing_belly = process_array(scratching_triggers,'2'), scratching_triggers_rubbing_tailhead = process_array(scratching_triggers,'3'), scratching_triggers_when_excited_anxious = process_array(scratching_triggers,'4'), scratching_triggers_when_walking_on_a_leash = process_array(scratching_triggers,'5'),scratching_triggers_during_night = process_array(scratching_triggers,'6'),  vocalising_when_scratching_shoulder_neck = process_array(vocalising_when_scratching,'1'), vocalising_when_scratching_back_of_head_ear = process_array(vocalising_when_scratching,'2'), nibbling_licking_fore_feet = process_array(nibbling_licking,'1'), nibbling_licking_hind_feet = process_array(nibbling_licking,'2'), nibbling_licking_tail_head = process_array(nibbling_licking,'3'), nibbling_licking_belly = process_array(nibbling_licking,'4'), nibbling_licking_flank = process_array(nibbling_licking,'5'), vocalisation_during_sleep = process_array(vocalisation_yelping_or_screaming,'1'), vocalisation_on_rising_or_when_jumping = process_array(vocalisation_yelping_or_screaming,'2'), vocalisation_when_being_picked_up = process_array(vocalisation_yelping_or_screaming,'3'), vocalisation_during_defecation = process_array(vocalisation_yelping_or_screaming,'4'), vocalisation_when_emotionally_aroused = process_array(vocalisation_yelping_or_screaming,'5'), vocalisation_yelping_or_screaming_when_anxious = process_array(vocalisation_yelping_or_screaming,'6'), vocalisation_yelping_or_screaming_text_box = form.vocalisation_yelping_or_screaming_text_box.data, exercise = form.exercise.data, play = form.play.data, upstairs = form.upstairs.data, downstairs = form.downstairs.data, jumping = form.jumping.data, interactions_no_longer_jumping_up_to_greet = process_array(interactions,'1'), interactions_increase_in_anxious_behaviour = process_array(interactions,'2'), interactions_more_withdraw = process_array(interactions,'3'), interactions_more_timid_with_other_dogs_or_humans = process_array(interactions,'4'), interactions_increased_agression_to_other_dogs = process_array(interactions,'5'), interactions_growling_when_picked_up = process_array(interactions,'6'), interactions_increased_agression_to_humans = process_array(interactions,'7'), interactions_text_box = form.interactions_text_box.data, sleep = form.sleep.data, other_signs_tocuh_grooming_aversion_ears_head_and_or_neck = process_array(other_signs,'1'), other_signs_tocuh_grooming_aversion_1_2_limb_and_paw = process_array(other_signs,'2'), other_signs_tocuh_grooming_aversion_sternum_or_flank = process_array(other_signs,'3'), other_signs_abnormal_awake_head_neck_posture = process_array(other_signs,'4'), other_signs_sleeping_elevated_or_unusual_head_posture = process_array(other_signs,'5'), other_signs_squinting_avoiding_light = process_array(other_signs,'6'), other_signs_pain_grimace = process_array(other_signs,'7'))
+        x_pred = []
+        x_pred.append(process_single_aswers(form.scratching.data))
+        x_pred.append(process_array(scratching_site,'1'))
+        x_pred.append(process_array(scratching_site,'2'))
+        x_pred.append(process_array(scratching_site,'3'))
+        x_pred.append(process_array(scratching_site,'4'))
+        x_pred.append(process_array(scratching_site,'5'))
+        x_pred.append(process_array(scratching_site,'6'))
+        x_pred.append(process_array(scratching_site,'7'))
+        x_pred.append(process_array(scratching_triggers,'1'))
+        x_pred.append(process_array(scratching_triggers,'2'))
+        x_pred.append(process_array(scratching_triggers,'3'))
+        x_pred.append(process_array(scratching_triggers,'4'))
+        x_pred.append(process_array(scratching_triggers,'5'))
+        x_pred.append(process_array(scratching_triggers,'6'))
+        x_pred.append(process_array(vocalising_when_scratching,'1'))
+        x_pred.append(process_array(vocalising_when_scratching,'2'))
+        x_pred.append(process_array(nibbling_licking,'1'))
+        x_pred.append(process_array(nibbling_licking,'2'))
+        x_pred.append(process_array(nibbling_licking,'3'))
+        x_pred.append(process_array(nibbling_licking,'4'))
+        x_pred.append(process_array(nibbling_licking,'5'))
+        x_pred.append(process_array(vocalisation_yelping_or_screaming,'1'))
+        x_pred.append(process_array(vocalisation_yelping_or_screaming,'2'))
+        x_pred.append(process_array(vocalisation_yelping_or_screaming,'3'))
+        x_pred.append(process_array(vocalisation_yelping_or_screaming,'4'))
+        x_pred.append(process_array(vocalisation_yelping_or_screaming,'5'))
+        x_pred.append(process_array(vocalisation_yelping_or_screaming,'6'))
+        x_pred.append(process_single_aswers(form.exercise.data))
+        x_pred.append(process_single_aswers(form.play.data))
+        x_pred.append(process_single_aswers(form.upstairs.data))
+        x_pred.append(process_single_aswers(form.downstairs.data))
+        x_pred.append(process_single_aswers(form.jumping.data))
+        x_pred.append(process_array(interactions,'1'))
+        x_pred.append(process_array(interactions,'2'))
+        x_pred.append(process_array(interactions,'3'))
+        x_pred.append(process_array(interactions,'4'))
+        x_pred.append(process_array(interactions,'5'))
+        x_pred.append(process_array(interactions,'6'))
+        x_pred.append(process_array(interactions,'7'))
+        x_pred.append(process_single_aswers(form.sleep.data))
+        x_pred.append(process_array(other_signs,'1'))
+        x_pred.append(process_array(other_signs,'2'))
+        x_pred.append(process_array(other_signs,'3'))
+        x_pred.append(process_array(other_signs,'4'))
+        x_pred.append(process_array(other_signs,'5'))
+        x_pred.append(process_array(other_signs,'6'))
+        x_pred.append(process_array(other_signs,'7'))
+        
+        
         db.session.add(submission)
         db.session.commit()
+
+        x_pred = np.array(x_pred)
+        x_pred = x_pred.reshape(1, -1)
+        y_pred = diagnostic_tool_prediction(x_pred)
+        flash(y_pred)
         flash("Submission added successfully ")
-        return redirect(url_for('dashboard'))
+        form.scratching_site.data = ''
+        form.scratching_triggers.data = ''
+        form.vocalising_when_scratching.data = ''
+        form.nibbling_licking.data = ''
+        form.vocalisation_yelping_or_screaming.data = ''
+        form.vocalisation_yelping_or_screaming_text_box.data = ''
+        form.interactions.data = ''
+        form.interactions_text_box.data = ''
+        form.other_signs.data = ''
+        return redirect(url_for('result', prediction = y_pred))
 
     else:
         for error in form.errors:
@@ -319,10 +399,35 @@ def form():
 
 def process_array(array, contains):
     if array is None:
-        return '0'
+        return 0
     else:
         if contains in array:
-            return '1'
+            return 1
         else:
-           return '0'
+           return 0
 
+def process_single_aswers(array):
+    if array is None:
+        return 0
+    else:
+        if '0' in array:
+            return 0
+        else:
+           return 1
+
+def diagnostic_tool_prediction(x_pred):
+    dataset = pd.read_csv('Clinical_signs_data.csv')
+    X = dataset.iloc[1:259:,0:-1].values
+    y = dataset.iloc[1:259, -1].values
+
+    X_train, X_test, y_train, y_test =train_test_split(X,y,test_size= 0.125, random_state=0)
+
+    sc_X = StandardScaler() 
+    #X_train = sc_X.fit_transform(X_train)
+    #X_test = sc_X.fit_transform(X_test)
+
+    classifer = BernoulliNB()
+    classifer.fit(X_train, y_train)
+    y_pred = classifer.predict(x_pred)
+    y_pred = y_pred[0]
+    return y_pred

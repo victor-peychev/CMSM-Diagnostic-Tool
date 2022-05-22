@@ -1,13 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Still in development</h1>
-{% for submission in submissions %}
+<h1>Dashboard (Still in development)</h1>
+{% if current_user.is_a_vet=="Yes": %}
+  Hi, You are a Vet! You have access to all the data!
+  {% for submission in submissions %}
     <div class="container">
         <div class="row">
                 <div class=".col-sm-6">
                     {{ submission.id }}
                     
                 </div>
+                <br/>
                 <div class=".col-sm-6">
                     {{ submission.dogs_name }}
                 </div>
@@ -15,7 +18,28 @@
     </div>
     <hr>
     
-{% endfor %}
+  {% endfor %}
+{% else %}
+Hi, You are not a Vet! You do not have access to all the data and only to your own submissions!
+  {% for submission in submissions %}
+  {% if submission.id == current_user.id %}
+    <div class="container">
+        <div class="row">
+                <div class=".col-sm-6">
+                    {{ submission.id }}
+                    
+                </div>
+                <br/>
+                <div class=".col-sm-6">
+                    {{ submission.dogs_name }}
+                </div>
+        </div>
+    </div>
+    <hr>
+    end
+  {% endfor %}
+{% else %}
+{% endif %}
 
 
 {% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Result</h1>
+<br/>
+<h3>Prediction = </h3>
+{% if result == '1.0' %}
+    <h3> True (1)</h3><br/>
+    <h5> The algotithm has predicticed that given the sypmtops it is a likely case of CMSM</h5>
+{% else %}
+    <h3>False (0)</h3><br/>
+    <h5> Given the symptoms, the algorithm has predicted that this is not a likely case of CMSM</h5>
+
+{%endif%}
+
+<br/>
+<br/>
+<br/>
+<br/>
+<h7>Due to lack of data the diagnostic tool is only experimental and should not be used to make assumptions.</h7>
+
+{% endblock %}
