@@ -27,8 +27,8 @@ from sklearn.metrics import classification_report
 #Flask instance
 app = Flask(__name__)
 # Add Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1421@localhost/users'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://uygmvrklrcinsb:cca4150d97ffe08554d255c87cb72c8a715273204702140ec41f09f38210afa7@ec2-3-217-113-25.compute-1.amazonaws.com:5432/d4h9142hjjsjia'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1421@localhost/users'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://uygmvrklrcinsb:cca4150d97ffe08554d255c87cb72c8a715273204702140ec41f09f38210afa7@ec2-3-217-113-25.compute-1.amazonaws.com:5432/d4h9142hjjsjia'
 # Secret Key
 app.config['SECRET_KEY'] = "secretkey"
 #Initialize The Database

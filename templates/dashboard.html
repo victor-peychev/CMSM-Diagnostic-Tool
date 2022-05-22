@@ -1,19 +1,38 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>Dashboard (Still in development)</h1>
+
 {% if current_user.is_a_vet=="Yes": %}
   Hi, You are a Vet! You have access to all the data!
+<br/>
+<br/>
+<br/>
   {% for submission in submissions %}
     <div class="container">
         <div class="row">
-                <div class=".col-sm-6">
-                    {{ submission.id }}
-                    
-                </div>
-                <br/>
-                <div class=".col-sm-6">
-                    {{ submission.dogs_name }}
-                </div>
+            <div class=".col-sm-6">
+                ID: 
+                {{ submission.id }}
+                &nbsp
+            </div>
+            <br/>
+            <div class=".col-sm-6">
+                | Name:
+                {{ submission.dogs_name }}
+                &nbsp
+            </div>
+            <div class=".col-sm-6">
+                | Date Added: 
+                {{ submission.date_added }}
+                &nbsp
+            </div>
+            <br/>
+            <div class=".col-sm-6">
+                | By User: 
+                {{ submission.foreign_id }}
+                &nbsp
+            </div>
+            <br/>
         </div>
     </div>
     <hr>
@@ -21,24 +40,41 @@
   {% endfor %}
 {% else %}
 Hi, You are not a Vet! You do not have access to all the data and only to your own submissions!
+<br/>
+<br/>
+<br/>
   {% for submission in submissions %}
-  {% if submission.id == current_user.id %}
+  {% if submission.foreign_id == current_user.id %}
     <div class="container">
         <div class="row">
                 <div class=".col-sm-6">
+                    ID: 
                     {{ submission.id }}
-                    
+                    &nbsp
                 </div>
                 <br/>
                 <div class=".col-sm-6">
+                    | Name:
                     {{ submission.dogs_name }}
+                    &nbsp
                 </div>
+                <div class=".col-sm-6">
+                    | Date Added: 
+                    {{ submission.date_added }}
+                    &nbsp
+                </div>
+                <br/>
+                <div class=".col-sm-6">
+                    | By User: 
+                    {{ submission.foreign_id }}
+                    &nbsp
+                </div>
+                <br/>
         </div>
     </div>
     <hr>
-    end
+    {% endif %}
   {% endfor %}
-{% else %}
 {% endif %}
 
 
